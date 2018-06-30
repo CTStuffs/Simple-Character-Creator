@@ -117,6 +117,14 @@ public class MainGUI {
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	
+	public int convertToInt(String text) {
+		text = text.replaceAll(",", "");
+		
+		int number = Integer.parseInt(text);
+		return number;
+	}
+	
 	private void initialize() {
 		frmCharacterCreator = new JFrame();
 		frmCharacterCreator.getContentPane().setFont(labelFont);
@@ -130,6 +138,13 @@ public class MainGUI {
 		initializeStatFields();
 
 		btnEditCharPowers = new JButton("Edit Talents and Techniques");
+		btnEditCharPowers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				CharPowerGUI cpgui = new CharPowerGUI();
+				cpgui.run();
+				
+			}
+		});
 		btnEditCharPowers.setBounds(126, 293, 225, 23);
 		frmCharacterCreator.getContentPane().add(btnEditCharPowers);
 		
@@ -336,7 +351,7 @@ public class MainGUI {
 		ftfAge.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				character.setAge(Integer.parseInt(ftfAge.getText()));
+				character.setAge(convertToInt(ftfAge.getText()));
 			}
 		});
 		ftfAge.setBounds(103, 80, 86, 20);
@@ -356,7 +371,7 @@ public class MainGUI {
 		statFormatter.setValueClass(Integer.class);
 		statFormatter.setMinimum(0);
 		statFormatter.setMaximum(Integer.MAX_VALUE);
-		statFormatter.setAllowsInvalid(true);
+		statFormatter.setAllowsInvalid(false);
 		statFormatter.setCommitsOnValidEdit(true);
 		
 
@@ -396,7 +411,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (!ftfStr.getText().isEmpty()) {
-					character.updateStat(StatName.STRENGTH, Integer.parseInt(ftfStr.getText()));
+					character.updateStat(StatName.STRENGTH, convertToInt(ftfStr.getText()));
 				}
 			}
 		});
@@ -411,7 +426,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e){
 				if (!ftfWil.getText().isEmpty()) {
-					character.updateStat(StatName.WILLPOWER, Integer.parseInt(ftfWil.getText()));
+					character.updateStat(StatName.WILLPOWER, convertToInt(ftfWil.getText()));
 				}
 			}
 		});
@@ -424,7 +439,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (!ftfMagic.getText().isEmpty()) {
-					character.updateStat(StatName.MAGIC_POTENTIAL, Integer.parseInt(ftfMagic.getText()));
+					character.updateStat(StatName.MAGIC_POTENTIAL, convertToInt(ftfMagic.getText()));
 				}
 			}
 		});
@@ -437,7 +452,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (!ftfAgil.getText().isEmpty()) {
-					character.updateStat(StatName.AGILITY, Integer.parseInt(ftfAgil.getText()));
+					character.updateStat(StatName.AGILITY, convertToInt(ftfAgil.getText()));
 				}
 			}	
 		});
@@ -452,7 +467,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (!ftfCon.getText().isEmpty()) {
-					character.updateStat(StatName.CONSTITUTION, Integer.parseInt(ftfCon.getText()));
+					character.updateStat(StatName.CONSTITUTION, convertToInt(ftfCon.getText()));
 				}
 			}
 		});
@@ -465,7 +480,7 @@ public class MainGUI {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (!ftfPer.getText().isEmpty()) {
-					character.updateStat(StatName.PERCEPTION, Integer.parseInt(ftfPer.getText()));
+					character.updateStat(StatName.PERCEPTION, convertToInt(ftfPer.getText()));
 				}
 			}
 		});

@@ -1,5 +1,5 @@
 package characterStuff;
 
 public enum PowerType {
-	TALENT, TECHNIQUE;
+	TALENT, TECHNIQUE, ERROR, BLANK;
 }
