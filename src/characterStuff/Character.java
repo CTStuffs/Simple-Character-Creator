@@ -125,6 +125,23 @@ public class Character {
 		CharPower tech = new CharPower(name, rank, description, PowerType.TECHNIQUE);
 		techniques.add(tech);
 	}
+	
+	public void setTalents(ArrayList<CharPower> talents) {
+		this.talents = talents;
+	}
+	
+	public void setTechniques(ArrayList<CharPower> techniques) {
+		this.techniques = techniques;
+	}
+	
+	public String getOtherDesc() {
+		return otherDesc;
+	}
+
+	public void setOtherDesc(String otherDesc) {
+		this.otherDesc = otherDesc;
+	}
+	
 
 	/*
 	public StatCollection getStats() {
@@ -142,9 +159,7 @@ public class Character {
 		return talents;
 	}
 
-	public void setTalents(ArrayList<Talent> talents) {
-		this.talents = talents;
-	}
+	
 
 	
 	public ArrayList<Technique> getTechniques() {
@@ -155,13 +170,6 @@ public class Character {
 		this.techniques = techniques;
 	}*/
 
-	public String getOtherDesc() {
-		return otherDesc;
-	}
-
-	public void setOtherDesc(String otherDesc) {
-		this.otherDesc = otherDesc;
-	}
 	
 	
 	

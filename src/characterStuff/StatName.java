@@ -1,5 +1,7 @@
 package characterStuff;
 
+// enum representing a stat name
+
 public enum StatName {
 	STRENGTH("STRENGTH"), MAGIC_POTENTIAL("MAGIC POTENTIAL"), CONSTITUTION("CONSTITUTION"), PERCEPTION("PERCEPTION"), AGILITY("AGILITY"), WILLPOWER("WILLPOWER");
 	

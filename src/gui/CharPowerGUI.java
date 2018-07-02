@@ -4,37 +4,54 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.JButton;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import characterStuff.CharPower;
 import characterStuff.PowerType;
 
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.ArrayList;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * The GUI for add new character powers 
+ *
+ */
+
+// TODO: Figure out how to edit and delete already added character powers
+
+
 public class CharPowerGUI {
 
-	private JFrame charPowerMainpanel;
-	private JTextField tfPowerName;
-
+	private JDialog charPowerMainpanel;
+	private JTextField textfieldPowerName;
+	private static CharPowerGUI instance = null;
 	
 	JLabel lblName;
-	JComboBox cBoxRank;
-	JComboBox cBoxPowerType;
-	JTextArea tfPowerDesc;
+	JComboBox comboxBoxRank;
+	JComboBox comboBoxPowerType;
+	JTextArea textfieldPowerDesc;
 	JLabel lblPowerDescription;
-	JTextPane tfTalents;
-	JTextPane tfTechniques;
+	JTextPane textfieldTalents;
+	JTextPane textfieldTechniques;
 	JLabel lblTalents;
 	JLabel lblTechniques;
 	JLabel lblPowerType;
@@ -42,7 +59,25 @@ public class CharPowerGUI {
 	JButton btnAddPower;
 	
 	CharPower newPower = new CharPower();
+	ArrayList<CharPower> talentList = new ArrayList<CharPower>();
+	ArrayList<CharPower> techniqueList = new ArrayList<CharPower>();
 	
+	/**
+	 * Create the application.
+	 */
+	private CharPowerGUI() {
+		initialize();
+	}
+	
+	// create singleton object instance
+	public static CharPowerGUI getInstance() {
+		if(instance == null)
+		{
+			instance = new CharPowerGUI();
+		}
+		return instance;
+	}
+
 	
 	/**
 	 * Launch the application.
@@ -60,163 +95,220 @@ public class CharPowerGUI {
 		});
 	}
 	
+	// closes the window
+	 private static WindowListener closeWindow = new WindowAdapter() {
+	        public void windowClosing(WindowEvent e) {
+	            e.getWindow().dispose();
+	        }
+	 };
+	
 	public void run() {
 		this.charPowerMainpanel.setVisible(true);
-		this.charPowerMainpanel.toFront();
-		this.charPowerMainpanel.requestFocus();
-		//this.charPowerMainpanel.setAlwaysOnTop(true); 
 	}
-
-	/**
-	 * Create the application.
-	 */
-	public CharPowerGUI() {
-		initialize();
-	}
-
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		
-	
-		
-		charPowerMainpanel = new JFrame();
+		charPowerMainpanel = new JDialog();
 		charPowerMainpanel.setTitle("Edit Character Powers");
 		charPowerMainpanel.setBounds(100, 100, 418, 482);
-		charPowerMainpanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		charPowerMainpanel.getContentPane().setLayout(null);
 		addLabels();
 		addInteractives();
 		
+		this.charPowerMainpanel.setModal(true);
 	}
 	
+	
+	// sets a name to the character object
+	// similar methods for the other fields are shown below
+	private void setNameToCharacter() {
+		if(!textfieldPowerName.getText().isEmpty()) {
+			newPower.setName(textfieldPowerName.getText());
+		}
+	}
+	
+	// TODO: Add validation for these two
+	private void setRankToCharPower() {
+		newPower.setRankByString(comboxBoxRank.getSelectedItem().toString());
+	}
+	private void setTypeToCharPower() {
+		newPower.setTypeByString(comboBoxPowerType.getSelectedItem().toString());
+	}
+	private void setDescToCharPower() {
+		if (!textfieldPowerDesc.getText().isEmpty()) {
+			newPower.setDescription(textfieldPowerDesc.getText());
+		}
+	}
+	
+	// add interactive objects to the GUI
 	public void addInteractives() {
-		tfPowerName = new JTextField();
-		tfPowerName.addFocusListener(new FocusAdapter() {
+		
+		Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+		textfieldPowerName = new JTextField();
+		textfieldPowerName.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				if(!tfPowerName.getText().isEmpty()) {
-					newPower.setName(tfPowerName.getText());
-				}
+				setNameToCharacter();
 			}
 		});
-		tfPowerName.setBounds(42, 290, 121, 20);
-		charPowerMainpanel.getContentPane().add(tfPowerName);
-		tfPowerName.setColumns(10);
+		textfieldPowerName.setBounds(42, 280, 121, 20);
+		textfieldPowerName.setColumns(10);
 		
-		cBoxRank = new JComboBox();
-		cBoxRank.addActionListener(new ActionListener() {
+		comboxBoxRank = new JComboBox();
+		comboxBoxRank.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				newPower.setRankByString(cBoxRank.getSelectedItem().toString());
+				setRankToCharPower();
 			}
 		});
-		cBoxRank.setModel(new DefaultComboBoxModel(new String[] {"E", "D", "C", "B", "A", "S"}));
-		cBoxRank.setBounds(311, 290, 48, 20);
-		charPowerMainpanel.getContentPane().add(cBoxRank);
+		comboxBoxRank.setModel(new DefaultComboBoxModel(new String[] {"E", "D", "C", "B", "A", "S"}));
+		comboxBoxRank.setBounds(313, 280, 48, 20);
+		comboxBoxRank.setSelectedIndex(0);
 		
-		cBoxPowerType = new JComboBox();
-		cBoxPowerType.addActionListener(new ActionListener() {
+		comboBoxPowerType = new JComboBox();
+		comboBoxPowerType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				newPower.setTypeByString(cBoxPowerType.getSelectedItem().toString());
+				setTypeToCharPower();
 			}
 		});
-		cBoxPowerType.setModel(new DefaultComboBoxModel(new String[] {"Talent", "Technique"}));
-		cBoxPowerType.setBounds(205, 290, 91, 20);
-		charPowerMainpanel.getContentPane().add(cBoxPowerType);
+		comboBoxPowerType.setModel(new DefaultComboBoxModel(new String[] {"Talent", "Technique"}));
+		comboBoxPowerType.setBounds(205, 280, 91, 20);
+		comboBoxPowerType.setSelectedIndex(0);
 		
-		tfPowerDesc = new JTextArea();
-		tfPowerDesc.addFocusListener(new FocusAdapter() {
+		textfieldPowerDesc = new JTextArea();
+		textfieldPowerDesc.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				if (!tfPowerDesc.getText().isEmpty()) {
-					newPower.setDescription(tfPowerDesc.getText());
-				}
+				setDescToCharPower();
 				
 			}
 		});
-		tfPowerDesc.setBounds(42, 339, 317, 52);
-		charPowerMainpanel.getContentPane().add(tfPowerDesc);
+		textfieldPowerDesc.setBounds(42, 331, 317, 60);
+		textfieldPowerDesc.setBorder(etchedBorder);
 
-		tfTalents = new JTextPane();
-		tfTalents.setEditable(false);
-		tfTalents.setBounds(42, 37, 317, 86);
-		
-		charPowerMainpanel.getContentPane().add(tfTalents);
-		
-		
-//		JScrollPane jspTalent = new JScrollPane(tfTalents);
-//		jspTalent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-//		charPowerMainpanel.add(jspTalent);
-	   // frame.setSize(300, 200);
-		
-		tfTechniques = new JTextPane();
-		tfTechniques.setEditable(false);
-		tfTechniques.setBounds(42, 158, 317, 86);
-		charPowerMainpanel.getContentPane().add(tfTechniques);
-		
-//		JScrollPane jspTechnique = new JScrollPane(tfTechniques);
-//		jspTechnique.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-//		charPowerMainpanel.add(jspTechnique);
-	   // frame.setSize(300, 200);
-		
+		// TODO: Add scroll bars to these text panes
+		// text panes for displaying the talents and techniques. They cannot be edited
+		textfieldTalents = new JTextPane();
+		textfieldTalents.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		textfieldTalents.setEditable(false);
+		textfieldTalents.setBounds(42, 37, 317, 86);
+		textfieldTalents.setBorder(etchedBorder);
+
+		textfieldTechniques = new JTextPane();
+		textfieldTechniques.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		textfieldTechniques.setEditable(false);
+		textfieldTechniques.setBounds(42, 158, 317, 86);
+		textfieldTechniques.setBorder(etchedBorder);
 		
 		btnAddPower = new JButton("Add Power");
 		btnAddPower.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				// set fields to the new CharPower
+				setDescToCharPower();
+				setTypeToCharPower();
+				setRankToCharPower();
+				setNameToCharacter();
+				
+				// validation
+				if (newPower.getName().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Cannot add a power with an empty name!");
+					return;
+				}
+				
 				String existingText = "";
-				if (newPower.getType() == PowerType.TALENT) {
-					existingText = tfTalents.getText();
+				PowerType currentType = newPower.getType();
+				
+				// add the new talent/technique to the text field and the according arraylist
+				if (currentType == PowerType.TALENT) {
+					existingText = textfieldTalents.getText();
 					existingText += (newPower.toString() + "\n");
-					tfTalents.setText(existingText);
+					textfieldTalents.setText(existingText);
+					talentList.add(newPower);
 				}
-				else if (newPower.getType() == PowerType.TECHNIQUE) {
-					existingText = tfTechniques.getText();
+				else if (currentType == PowerType.TECHNIQUE) {
+					existingText = textfieldTechniques.getText();
 					existingText += (newPower.toString() + "\n");
-					tfTechniques.setText(existingText);
+					textfieldTechniques.setText(existingText);
+					techniqueList.add(newPower);
+
 				}
+				
+				// validation
 				else {
+					JOptionPane.showMessageDialog(null, "Please make sure you have actually selected a type of power!");
 					System.out.println("ERROR! Please check type of the new power!");
 				}
 				
+				// reset the variable
+				newPower = new CharPower();
+				
+				// for debugging purposes
+				System.out.println("Talents: ");
+				for (CharPower t: talentList) {
+					System.out.println(t.toString());
+				}
+				System.out.println("Techniques: ");
+				for (CharPower t: techniqueList) {
+					System.out.println(t.toString());
+				}
 			}
 		});
-		btnAddPower.setBounds(52, 409, 89, 23);
+		btnAddPower.setBounds(42, 402, 121, 23);
+		
+		charPowerMainpanel.getContentPane().add(textfieldPowerName);
+		charPowerMainpanel.getContentPane().add(comboxBoxRank);
+		charPowerMainpanel.getContentPane().add(comboBoxPowerType);
+		charPowerMainpanel.getContentPane().add(textfieldPowerDesc);
+		charPowerMainpanel.getContentPane().add(textfieldTalents);
+		charPowerMainpanel.getContentPane().add(textfieldTechniques);
 		charPowerMainpanel.getContentPane().add(btnAddPower);
 	}
 	
+	
+	// initializes the labels
 	public void addLabels() {
 		lblTalents = new JLabel("Talents:");
 		lblTalents.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblTalents.setBounds(42, 11, 61, 14);
-		charPowerMainpanel.getContentPane().add(lblTalents);
 		
 		lblTechniques = new JLabel("Techniques:");
 		lblTechniques.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		lblTechniques.setBounds(38, 134, 83, 14);
-		charPowerMainpanel.getContentPane().add(lblTechniques);
 		
 		lblPowerType = new JLabel("Power Type:");
 		lblPowerType.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblPowerType.setBounds(205, 266, 91, 14);
-		charPowerMainpanel.getContentPane().add(lblPowerType);
-		
+		lblPowerType.setBounds(205, 255, 91, 14);
 		
 		lblName = new JLabel("Name: ");
 		lblName.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblName.setBounds(42, 265, 61, 14);
-		charPowerMainpanel.getContentPane().add(lblName);
+		lblName.setBounds(42, 255, 61, 14);
 		
 		lblPowerDescription = new JLabel("Description:");
 		lblPowerDescription.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblPowerDescription.setBounds(42, 321, 77, 14);
-		charPowerMainpanel.getContentPane().add(lblPowerDescription);
+		lblPowerDescription.setBounds(42, 311, 77, 14);
 		
 		lblRank = new JLabel("Rank:");
 		lblRank.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblRank.setBounds(311, 266, 61, 14);
+		lblRank.setBounds(313, 255, 61, 14);
+		
+		charPowerMainpanel.getContentPane().add(lblTalents);
+		charPowerMainpanel.getContentPane().add(lblTechniques);
+		charPowerMainpanel.getContentPane().add(lblPowerType);
+		charPowerMainpanel.getContentPane().add(lblName);
+		charPowerMainpanel.getContentPane().add(lblPowerDescription);
 		charPowerMainpanel.getContentPane().add(lblRank);
 		
 		
 	}
+	
+	public ArrayList<CharPower> getTalents(){
+		return talentList;
+	}
+	
+	public ArrayList<CharPower> getTechniques(){
+		return techniqueList;
+	}
+	
 }

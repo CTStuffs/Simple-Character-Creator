@@ -33,8 +33,7 @@ public class CharPower {
 		rank = Rank.E;
 		description = "";
 		type = PowerType.BLANK;
-		
-		
+
 	}
 	
 	public String getName() {

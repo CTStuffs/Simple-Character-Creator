@@ -1,5 +1,7 @@
 package characterStuff;
 
+// represents a stat (unused)
+
 public class Stat {
 	StatName name;
 	int val;

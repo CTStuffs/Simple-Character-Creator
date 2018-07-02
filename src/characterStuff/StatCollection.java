@@ -1,5 +1,7 @@
 package characterStuff;
 
+// object representing a collection of stats
+
 import java.util.ArrayList;
 import java.util.HashMap;
 

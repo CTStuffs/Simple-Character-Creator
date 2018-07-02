@@ -13,14 +13,19 @@ import javax.swing.text.NumberFormatter;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFormattedTextField;
 import java.awt.SystemColor;
+
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
@@ -42,20 +47,28 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 
+/**
+ * 
+ * Main file for the GUI.
+ * 
+ * **/
+
 public class MainGUI {
 
 	private JFrame frmCharacterCreator;
-	private JTextField tfName;
-	private JTextField tfSpecies;
-	private JTextField tfAlignment;
+	private JTextField textfieldName;
+	private JTextField textfieldSpecies;
+	private JTextField textfieldAlignment;
 	
+	// menu and menu choices
 	JMenuBar menuBar;
 	JMenu fileMenu;
-	JMenuItem mntmNew;
-	JMenuItem mntmLoad;
-	JMenuItem mntmSave;
+	JMenuItem menuChoiceNew;
+	JMenuItem menuChoiceLoad;
+	JMenuItem menuChoiceSave;
 	JMenu helpMenu;
 	
+	// labels
 	JLabel lblName;
 	JLabel lblGender;
 	JLabel lblAge;
@@ -68,28 +81,40 @@ public class MainGUI {
 	JLabel lblPer;
 	JLabel lblCon;
 	JLabel lblOtherDesc;
-	
-	
-	JTextArea tfDescription;
-	JComboBox cBoxGender;
-	JFormattedTextField ftfAge;
-	
-	JButton btnEditCharPowers;
-	
-	JTextArea tfOtherDesc;
 	JLabel lblStr;
 	
-	JFormattedTextField ftfStr;
-	JFormattedTextField ftfWil;
-	JFormattedTextField ftfMagic;
-	JFormattedTextField ftfAgil;
-	JFormattedTextField ftfCon;
-	JFormattedTextField ftfPer;
+	// combo box and buttons
+	JComboBox comboBoxGender;
+	JButton btnEditCharPowers;
+	
+	// text fields
+	JTextArea textfieldDescription;
+	JFormattedTextField formatTextfieldAge;
+	JTextArea textfieldOtherDesc;
+	JFormattedTextField formatTextfieldStr;
+	JFormattedTextField formatTextfieldWil;
+	JFormattedTextField formatTextfieldMagic;
+	JFormattedTextField formatTextfieldAgl;
+	JFormattedTextField formatTextfieldCon;
+	JFormattedTextField formatTextfieldPer;
+	
+	
+	
+	// other components 
 	Font labelFont = new Font("Tahoma", Font.PLAIN, 14);
 	Font textFieldFont = new Font("Tahoma", Font.PLAIN, 11);
 	
+	// seperate gui for the character powers
+	CharPowerGUI cpgui = CharPowerGUI.getInstance();
+	JFileChooser jfc;
+	
+	// the character to be edited by the user
 	Character character = new Character();
-	private JMenuItem mntmNewMenuItem;
+	ArrayList<GUIComponentRecord> guiComponents = new ArrayList<GUIComponentRecord>();
+	String txtFileSuffix = ".txt";
+	FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "*" + txtFileSuffix, "txt");
+
+	private JMenuItem menuChoicePrintDebug;
 	
 	/**
 	 * Launch the application.
@@ -125,126 +150,43 @@ public class MainGUI {
 		return number;
 	}
 	
+	// program that initializes the gui components, including the frame
 	private void initialize() {
 		frmCharacterCreator = new JFrame();
 		frmCharacterCreator.getContentPane().setFont(labelFont);
 		frmCharacterCreator.setTitle("Character Creator");
-		frmCharacterCreator.setBounds(100, 100, 488, 493);
+		frmCharacterCreator.setBounds(100, 100, 488, 470);
 		frmCharacterCreator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-	
-		initializeMenuFields();
-		initializeBasicFields();
+		initializeMenu();
+		initializeTextFields();
 		initializeStatFields();
-
-		btnEditCharPowers = new JButton("Edit Talents and Techniques");
-		btnEditCharPowers.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CharPowerGUI cpgui = new CharPowerGUI();
-				cpgui.run();
-				
-			}
-		});
-		btnEditCharPowers.setBounds(126, 293, 225, 23);
-		frmCharacterCreator.getContentPane().add(btnEditCharPowers);
+		initializeInteractables();
+		initializeLabels();
+		createGUIRecords();
 		
-		lblOtherDesc = new JLabel("Other: ");
-		lblOtherDesc.setFont(labelFont);
-		lblOtherDesc.setBounds(21, 347, 46, 23);
-		frmCharacterCreator.getContentPane().add(lblOtherDesc);
-		
-		tfOtherDesc = new JTextArea();
-		tfOtherDesc.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				character.setOtherDesc(tfOtherDesc.getText());
-			}
-		});
-		tfOtherDesc.setBounds(74, 348, 373, 74);
-		frmCharacterCreator.getContentPane().add(tfOtherDesc);
-		
-		
-
-	}
-	
-
-
-	public void initializeMenuFields() {
-		menuBar = new JMenuBar();
-		frmCharacterCreator.setJMenuBar(menuBar);
-		
-		fileMenu = new JMenu("File");
-		menuBar.add(fileMenu);
-		
-		mntmNew = new JMenuItem("New");
-		fileMenu.add(mntmNew);
-		
-		mntmLoad = new JMenuItem("Load");
-		
-		fileMenu.add(mntmLoad);
-		
-		mntmSave = new JMenuItem("Save");
-		fileMenu.add(mntmSave);
-		
-		mntmSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String fileSuffix = ".txt";
-				
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "*" + fileSuffix, "txt");
-				JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-				jfc.addChoosableFileFilter(filter);
-				jfc.setDialogTitle("Choose a directory to save your file: ");
-				//jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int returnValue = jfc.showSaveDialog(null);
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					
-					// insert file stuff here later
-					String filePath = jfc.getSelectedFile().getPath();
-					String fileName = jfc.getSelectedFile().getName();
-					
-					// filename is empty
-					if (fileName.isEmpty()) {
-						fileName = "CHARACTER_" + character.getName() + fileSuffix;
-						filePath += fileName;
-					}
-					else {
-						
-						// if the filename has less than 5 characters or doesn't contain the file suffix
-						if (fileName.length() <= 4 || !fileName.substring(fileName.length() - 4).toLowerCase().equals(fileSuffix)) {
-							filePath += fileSuffix;
-						}
-					}
-					
-					try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"))) 
-					{
-							writer.write(character.toString());
-					}
-					catch (Exception e) {
-						e.printStackTrace();	
-					}
-					System.out.println("You selected the place: " + filePath + " to save your file in.");
-					
-					
-					
-				}
-				
-			}
-		});
-		helpMenu = new JMenu("Help");
-		menuBar.add(helpMenu);
-		
-		mntmNewMenuItem = new JMenuItem("Print Character to Console (DEBUG)");
-		mntmNewMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println(character.toString());
-			}
-		});
-		helpMenu.add(mntmNewMenuItem);
-		frmCharacterCreator.getContentPane().setLayout(null);
 		
 	}
 	
-	public void initializeBasicFields() {
+	// adds the gui components to an arraylist for further processing l=
+	public void createGUIRecords() {
+		guiComponents.add(new GUIComponentRecord(textfieldName, "Name"));
+		guiComponents.add(new GUIComponentRecord(textfieldSpecies, "Species"));
+		guiComponents.add(new GUIComponentRecord(textfieldAlignment, "Alignment"));
+		guiComponents.add(new GUIComponentRecord(textfieldDescription, "Description"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldAge, "Age"));
+		guiComponents.add(new GUIComponentRecord(textfieldOtherDesc, "Other Description"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldStr, "Strength Stat"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldWil, "Willpower Stat"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldMagic, "Magic Stat"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldAgl, "Agility Stat"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldCon, "Constitution Stat"));
+		guiComponents.add(new GUIComponentRecord(formatTextfieldPer, "Perception Stat"));
+	}
+
+
+	// creates and initializes the labels on the primary gui
+	public void initializeLabels() {
 		lblName = new JLabel("Name:");
 		lblName.setFont(labelFont);
 		lblName.setBounds(21, 19, 46, 14);
@@ -255,7 +197,7 @@ public class MainGUI {
 		lblGender.setBounds(21, 44, 57, 14);
 		frmCharacterCreator.getContentPane().add(lblGender);
 		
-		lblAge = new JLabel("Age: ");
+		lblAge = new JLabel("Age:");
 		lblAge.setFont(labelFont);
 		lblAge.setBounds(21, 80, 46, 23);
 		frmCharacterCreator.getContentPane().add(lblAge);
@@ -267,7 +209,7 @@ public class MainGUI {
 		
 		lblAlignment = new JLabel("Alignment:");
 		lblAlignment.setFont(labelFont);
-		lblAlignment.setBounds(21, 134, 71, 23);
+		lblAlignment.setBounds(21, 130, 71, 23);
 		frmCharacterCreator.getContentPane().add(lblAlignment);
 		
 		lblDescription = new JLabel("Description:");
@@ -275,219 +217,404 @@ public class MainGUI {
 		lblDescription.setBounds(232, 16, 94, 23);
 		frmCharacterCreator.getContentPane().add(lblDescription);
 		
-		tfName = new JTextField();
+		lblOtherDesc = new JLabel("Other: ");
+		lblOtherDesc.setFont(labelFont);
+		lblOtherDesc.setBounds(21, 326, 46, 23);
+		frmCharacterCreator.getContentPane().add(lblOtherDesc);
 		
-		// sets the character text
-		tfName.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!tfName.getText().isEmpty()) {
-					character.setName(tfName.getText());
-				}
+		lblStr = new JLabel("STRENGTH:");
+		lblStr.setFont(labelFont);
+		lblStr.setBounds(21, 175, 86, 14);
+		frmCharacterCreator.getContentPane().add(lblStr);
+		
+		lblWil = new JLabel("WILLPOWER:");
+		lblWil.setFont(labelFont);
+		lblWil.setBounds(235, 175, 89, 14);
+		frmCharacterCreator.getContentPane().add(lblWil);
+		
+		lblMagic = new JLabel("MAGIC POTENTIAL:");
+		lblMagic.setFont(labelFont);
+		lblMagic.setBounds(235, 200, 130, 14);
+		frmCharacterCreator.getContentPane().add(lblMagic);
+		
+		lblAgil = new JLabel("AGILITY:");
+		lblAgil.setFont(labelFont);
+		lblAgil.setBounds(235, 225, 89, 14);
+		frmCharacterCreator.getContentPane().add(lblAgil);
+		
+		lblPer = new JLabel("PERCEPTION:");
+		lblPer.setFont(labelFont);
+		lblPer.setBounds(21, 200, 116, 14);
+		frmCharacterCreator.getContentPane().add(lblPer);
+		
+		lblCon = new JLabel("CONSTITUTION:");
+		lblCon.setFont(labelFont);
+		lblCon.setBounds(21, 225, 116, 14);
+		frmCharacterCreator.getContentPane().add(lblCon);
+	}
+	
+	
+	// creates the warning text that appears when not all text fields are filled in and the user clicks on the save option
+	public String getSaveWarningText() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<html>The following fields are blank: ");
+		boolean needsError = false;
+		
+		// go through all the text field components
+		for (GUIComponentRecord gc: guiComponents) {
+			
+			// if the field is empty, add its name to the warning string
+			if (gc.getText().isEmpty()) {
+				needsError = true;
+				sb.append(gc.getName() + ", ");
 			}
-		});
-		tfName.setBounds(103, 19, 86, 20);
-		frmCharacterCreator.getContentPane().add(tfName);
-		tfName.setColumns(10);
+		}
 		
-		tfSpecies = new JTextField();
-		tfSpecies.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				character.setSpecies(tfSpecies.getText());
-			}
-		});
-		tfSpecies.setBounds(103, 105, 86, 20);
-		frmCharacterCreator.getContentPane().add(tfSpecies);
-		tfSpecies.setColumns(10);
+		// do the same for the talents and technique arraylists
+		if (cpgui.getTalents().size() <= 0) {
+			sb.append("Talents, ");
+		}
+		if (cpgui.getTechniques().size() <= 0) {
+			sb.append("Techniques, ");
+		}
 		
-		tfAlignment = new JTextField();
-		tfAlignment.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				character.setAlignment(tfAlignment.getText());
-			}
-		});
-		tfAlignment.setBounds(102, 137, 86, 20);
-		frmCharacterCreator.getContentPane().add(tfAlignment);
-		tfAlignment.setColumns(10);
+		// if a blank field has been detected, return the string
+		// otherwise return an empty string (that will be ignored)
+		if (needsError) {
+			sb.setLength(sb.length() - 2);
+			sb.append(".\n");
+			sb.append("<br>Are you sure you want to continue saving?</html>");
+			return sb.toString();
+		}
+		else {
+			return "";
+		}		
+	}
+	
+	// initializes the text fields
+	public void initializeTextFields() {
 		
-		tfDescription = new JTextArea();
-		tfDescription.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent arg0) {
-				character.setDescription(tfDescription.getText());
-				
-			}
-		});
-		tfDescription.setFont(textFieldFont);
-		tfDescription.setBounds(233, 45, 214, 112);
-		frmCharacterCreator.getContentPane().add(tfDescription);
+		// border for visuals
+		Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 		
-		// 
-		cBoxGender = new JComboBox<Object>();
-		cBoxGender.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				character.setGender(cBoxGender.getSelectedItem().toString());
-				
-			}
-		});
-		cBoxGender.setModel(new DefaultComboBoxModel<Object>(new String[] {"Male", "Female", "Other"}));
-		cBoxGender.setSelectedIndex(0);
-		cBoxGender.setBounds(103, 44, 86, 20);
-		frmCharacterCreator.getContentPane().add(cBoxGender);
-		
+		// numberformatter for fields for numerics only
+		// allows for commas, but not fullstops
 		NumberFormat numFormat = NumberFormat.getInstance();
 		NumberFormatter numFormatter = new NumberFormatter(numFormat);
-		
 		numFormatter.setValueClass(Integer.class);
 		numFormatter.setMinimum(0);
 		numFormatter.setMaximum(Integer.MAX_VALUE);
 		numFormatter.setAllowsInvalid(false);
 		numFormatter.setCommitsOnValidEdit(true);
-		
-		ftfAge = new JFormattedTextField(numFormatter);
-		ftfAge.addFocusListener(new FocusAdapter() {
+
+		textfieldName = new JTextField();
+		textfieldName.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				character.setAge(convertToInt(ftfAge.getText()));
+				character.setName(textfieldSpecies.getText());
 			}
 		});
-		ftfAge.setBounds(103, 80, 86, 20);
-		ftfAge.setValue(new Integer(0));
+		textfieldName.setBounds(103, 19, 86, 20);
+		textfieldName.setColumns(10);
 		
-		frmCharacterCreator.getContentPane().add(ftfAge);
+		textfieldSpecies = new JTextField();
+		textfieldSpecies.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				character.setSpecies(textfieldSpecies.getText());
+			}
+		});
+		textfieldSpecies.setBounds(103, 105, 86, 20);
+		textfieldSpecies.setColumns(10);
+		
+		textfieldAlignment = new JTextField();
+		textfieldAlignment.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				character.setAlignment(textfieldAlignment.getText());
+			}
+		});
+		textfieldAlignment.setBounds(103, 130, 86, 20);
+		textfieldAlignment.setColumns(10);
+		
+		textfieldDescription = new JTextArea();
+		textfieldDescription.setLineWrap(true);
+		textfieldDescription.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				character.setDescription(textfieldDescription.getText());
+				
+			}
+		});
+		textfieldDescription.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		textfieldDescription.setBounds(233, 45, 214, 105);
+		textfieldDescription.setBorder(etchedBorder);
+		
+		formatTextfieldAge = new JFormattedTextField(numFormatter);
+		formatTextfieldAge.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				character.setAge(convertToInt(formatTextfieldAge.getText()));
+			}
+		});
+		formatTextfieldAge.setBounds(103, 80, 86, 20);
+		formatTextfieldAge.setValue(new Integer(0));
+		
+		textfieldOtherDesc = new JTextArea();
+		textfieldOtherDesc.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				character.setOtherDesc(textfieldOtherDesc.getText());
+			}
+		});
+		textfieldOtherDesc.setBounds(74, 327, 373, 74);
+		textfieldOtherDesc.setBorder(etchedBorder);
 
-		
-		
+		frmCharacterCreator.getContentPane().add(textfieldSpecies);
+		frmCharacterCreator.getContentPane().add(textfieldName);
+		frmCharacterCreator.getContentPane().add(textfieldAlignment);
+		frmCharacterCreator.getContentPane().add(textfieldDescription);
+		frmCharacterCreator.getContentPane().add(formatTextfieldAge);
+		frmCharacterCreator.getContentPane().add(textfieldOtherDesc);
 	}
 	
+	// initializes other interactables on the gui, such as combox boxes
+	public void initializeInteractables() {
+
+		comboBoxGender = new JComboBox<Object>();
+		comboBoxGender.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				character.setGender(comboBoxGender.getSelectedItem().toString());
+				
+			}
+		});
+		comboBoxGender.setModel(new DefaultComboBoxModel<Object>(new String[] {"Male", "Female", "Other"}));
+		comboBoxGender.setSelectedIndex(0);
+		comboBoxGender.setBounds(103, 44, 86, 20);
+		
+
+		btnEditCharPowers = new JButton("Edit Talents and Techniques");
+		btnEditCharPowers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cpgui.run();
+			}
+		});
+		btnEditCharPowers.setBounds(126, 272, 225, 23);
+		
+		frmCharacterCreator.getContentPane().add(comboBoxGender);
+		frmCharacterCreator.getContentPane().add(btnEditCharPowers);
+	}
+	
+	// initializes the stat fields for the gui
 	public void initializeStatFields() {
 		
+		// number formatter for the stat fields
 		NumberFormat statFormat = NumberFormat.getInstance();
 		NumberFormatter statFormatter = new NumberFormatter(statFormat);
-		
 		statFormatter.setValueClass(Integer.class);
 		statFormatter.setMinimum(0);
 		statFormatter.setMaximum(Integer.MAX_VALUE);
 		statFormatter.setAllowsInvalid(false);
 		statFormatter.setCommitsOnValidEdit(true);
 		
-
-		lblStr = new JLabel("STRENGTH");
-		lblStr.setFont(labelFont);
-		lblStr.setBounds(21, 196, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblStr);
-		
-		lblWil = new JLabel("WILLPOWER");
-		
-		lblWil.setFont(labelFont);
-		lblWil.setBounds(235, 196, 89, 14);
-		frmCharacterCreator.getContentPane().add(lblWil);
-		
-		lblMagic = new JLabel("MAGIC POTENTIAL");
-		lblMagic.setFont(labelFont);
-		lblMagic.setBounds(235, 221, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblMagic);
-		
-		lblAgil = new JLabel("AGILITY");
-		lblAgil.setFont(labelFont);
-		lblAgil.setBounds(235, 246, 89, 14);
-		frmCharacterCreator.getContentPane().add(lblAgil);
-		
-		lblPer = new JLabel("PERCEPTION");
-		lblPer.setFont(labelFont);
-		lblPer.setBounds(21, 221, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblPer);
-		
-		lblCon = new JLabel("CONSTITUTION");
-		lblCon.setFont(labelFont);
-		lblCon.setBounds(21, 246, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblCon);
-		
-		ftfStr = new JFormattedTextField(statFormatter);
-		ftfStr.addFocusListener(new FocusAdapter() {
+		formatTextfieldStr = new JFormattedTextField(statFormatter);
+		formatTextfieldStr.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!ftfStr.getText().isEmpty()) {
-					character.updateStat(StatName.STRENGTH, convertToInt(ftfStr.getText()));
+				if (!formatTextfieldStr.getText().isEmpty()) {
+					character.updateStat(StatName.STRENGTH, convertToInt(formatTextfieldStr.getText()));
 				}
 			}
 		});
-		ftfStr.setColumns(10);
-		ftfStr.setBounds(149, 195, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfStr);
-		
-		
-		
-		ftfWil = new JFormattedTextField(statFormatter);
-		ftfWil.addFocusListener(new FocusAdapter() {
+		formatTextfieldStr.setColumns(10);
+		formatTextfieldStr.setBounds(149, 174, 61, 20);
+
+		formatTextfieldWil = new JFormattedTextField(statFormatter);
+		formatTextfieldWil.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e){
-				if (!ftfWil.getText().isEmpty()) {
-					character.updateStat(StatName.WILLPOWER, convertToInt(ftfWil.getText()));
+				if (!formatTextfieldWil.getText().isEmpty()) {
+					character.updateStat(StatName.WILLPOWER, convertToInt(formatTextfieldWil.getText()));
 				}
 			}
 		});
-		ftfWil.setColumns(10);
-		ftfWil.setBounds(386, 195, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfWil);
+		formatTextfieldWil.setColumns(10);
+		formatTextfieldWil.setBounds(386, 174, 61, 20);
 		
-		ftfMagic = new JFormattedTextField(statFormatter);
-		ftfMagic.addFocusListener(new FocusAdapter() {
+		formatTextfieldMagic = new JFormattedTextField(statFormatter);
+		formatTextfieldMagic.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!ftfMagic.getText().isEmpty()) {
-					character.updateStat(StatName.MAGIC_POTENTIAL, convertToInt(ftfMagic.getText()));
+				if (!formatTextfieldMagic.getText().isEmpty()) {
+					character.updateStat(StatName.MAGIC_POTENTIAL, convertToInt(formatTextfieldMagic.getText()));
 				}
 			}
 		});
-		ftfMagic.setColumns(10);
-		ftfMagic.setBounds(386, 220, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfMagic);
-		
-		ftfAgil = new JFormattedTextField(statFormatter);
-		ftfAgil.addFocusListener(new FocusAdapter() {
+		formatTextfieldMagic.setColumns(10);
+		formatTextfieldMagic.setBounds(386, 199, 61, 20);
+	
+		formatTextfieldAgl = new JFormattedTextField(statFormatter);
+		formatTextfieldAgl.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!ftfAgil.getText().isEmpty()) {
-					character.updateStat(StatName.AGILITY, convertToInt(ftfAgil.getText()));
+				if (!formatTextfieldAgl.getText().isEmpty()) {
+					character.updateStat(StatName.AGILITY, convertToInt(formatTextfieldAgl.getText()));
 				}
 			}	
 		});
-		ftfAgil.setColumns(10);
-		ftfAgil.setBounds(386, 245, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfAgil);
-		
-		
-		
-		ftfCon = new JFormattedTextField(statFormatter);
-		ftfCon.addFocusListener(new FocusAdapter() {
+		formatTextfieldAgl.setColumns(10);
+		formatTextfieldAgl.setBounds(386, 224, 61, 20);
+
+		formatTextfieldCon = new JFormattedTextField(statFormatter);
+		formatTextfieldCon.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!ftfCon.getText().isEmpty()) {
-					character.updateStat(StatName.CONSTITUTION, convertToInt(ftfCon.getText()));
+				if (!formatTextfieldCon.getText().isEmpty()) {
+					character.updateStat(StatName.CONSTITUTION, convertToInt(formatTextfieldCon.getText()));
 				}
 			}
 		});
-		ftfCon.setColumns(10);
-		ftfCon.setBounds(149, 245, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfCon);
+		formatTextfieldCon.setColumns(10);
+		formatTextfieldCon.setBounds(149, 224, 61, 20);
 		
-		ftfPer = new JFormattedTextField(statFormatter);
-		ftfPer.addFocusListener(new FocusAdapter() {
+		formatTextfieldPer = new JFormattedTextField(statFormatter);
+		formatTextfieldPer.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!ftfPer.getText().isEmpty()) {
-					character.updateStat(StatName.PERCEPTION, convertToInt(ftfPer.getText()));
+				if (!formatTextfieldPer.getText().isEmpty()) {
+					character.updateStat(StatName.PERCEPTION, convertToInt(formatTextfieldPer.getText()));
 				}
 			}
 		});
-		ftfPer.setColumns(10);
-		ftfPer.setBounds(149, 220, 61, 20);
-		frmCharacterCreator.getContentPane().add(ftfPer);
+		formatTextfieldPer.setColumns(10);
+		formatTextfieldPer.setBounds(149, 199, 61, 20);
 		
+		frmCharacterCreator.getContentPane().add(formatTextfieldStr);
+		frmCharacterCreator.getContentPane().add(formatTextfieldWil);
+		frmCharacterCreator.getContentPane().add(formatTextfieldMagic);
+		frmCharacterCreator.getContentPane().add(formatTextfieldAgl);
+		frmCharacterCreator.getContentPane().add(formatTextfieldCon);
+		frmCharacterCreator.getContentPane().add(formatTextfieldPer);	
+	}
+	
+	// initializes the menu parts
+	public void initializeMenu() {
+		menuBar = new JMenuBar();
+		frmCharacterCreator.setJMenuBar(menuBar);
+		
+		fileMenu = new JMenu("File");
+		menuBar.add(fileMenu);
+		
+		menuChoiceNew = new JMenuItem("New");
+		fileMenu.add(menuChoiceNew);
+		
+		menuChoiceLoad = new JMenuItem("Load");
+		
+		// loading function
+		// TODO: Finish the loading function
+		menuChoiceLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				jfc = new JFileChooser();
+				jfc.setFileFilter(filter);
+				jfc.setDialogTitle("Open an existing character file: ");
+				int returnValue = jfc.showSaveDialog(null);
+				
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File file = jfc.getSelectedFile();
+					System.out.println("Opened file: " + file.getAbsolutePath());
+				}
+				else {
+					System.out.println("Open command cancelled by user.");
+				}
+				
+			}
+		});
+		
+		fileMenu.add(menuChoiceLoad);
+
+		menuChoiceSave = new JMenuItem("Save");
+		fileMenu.add(menuChoiceSave);
+
+		// saving function
+		menuChoiceSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				String warningText = getSaveWarningText();
+				
+				// check for empty fields. If there are, show a warning message to the user
+				if (!warningText.isEmpty()) {
+					SaveWarningDialog swd = new SaveWarningDialog();
+					swd.setWarningText(warningText);
+					swd.run();
+					//System.out.println(swd.getResult());
+					
+					// if the user clicks cancel, return to the regular gui and proceed no further
+					if (!swd.getResult()) {
+						swd.end();
+						return;
+					}
+					//swd.end();
+				}
+				
+				// get talent and technique list from the seperate window
+				if (cpgui.getTalents().size() > 0) {
+					character.setTalents(cpgui.getTalents());
+				}
+				
+				if (cpgui.getTechniques().size() > 0) {
+					character.setTechniques(cpgui.getTechniques());
+				}
+
+				// create the file chooser
+				jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				jfc.setFileFilter(filter);
+				jfc.setDialogTitle("Choose a directory to save your file: ");
+				int returnValue = jfc.showSaveDialog(null);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					
+					// insert file stuff here later
+					String filePath = jfc.getSelectedFile().getPath();
+					String fileName = jfc.getSelectedFile().getName();
+					
+					// filename is empty
+					if (fileName.isEmpty()) {
+						fileName = "CHARACTER_" + character.getName() + txtFileSuffix;
+						filePath += fileName;
+					}
+					else {
+						
+						// if the filename has less than 5 characters or doesn't contain the file suffix
+						if (fileName.length() <= 4 || !fileName.substring(fileName.length() - 4).toLowerCase().equals(txtFileSuffix)) {
+							filePath += txtFileSuffix;
+						}
+					}
+					
+					// write the file
+					try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"))) 
+					{
+							writer.write(character.toString());
+					}
+					catch (Exception e) {
+						e.printStackTrace();	
+					}
+					System.out.println("You selected the place: " + filePath + " to save your file in.");
+				}
+				
+			}
+		});
+		helpMenu = new JMenu("Help");
+		menuBar.add(helpMenu);
+		
+		// debugging menu option
+		menuChoicePrintDebug = new JMenuItem("Print Character to Console (DEBUG)");
+		menuChoicePrintDebug.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println(character.toString());
+			}
+		});
+		helpMenu.add(menuChoicePrintDebug);
+		frmCharacterCreator.getContentPane().setLayout(null);
 		
 	}
 }
