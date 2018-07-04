@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 // represents a stat (unused)
 

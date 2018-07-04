@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 // represents a power a character has. Used for Talents and Techniques, which may have differences later on
 public class CharPower {
@@ -36,6 +36,23 @@ public class CharPower {
 
 	}
 	
+	public void setFieldsByRawText(String rawText) {
+		
+		if (rawText.matches("[\\w\\s]+ \\(\\w\\): [\\w\\s]+")) {
+			String[] parts = rawText.split("\\(");
+			String powerName = parts[0];
+			parts = parts[1].split("\\): ");
+			String rankName = parts[0];
+			String desc = parts[1];
+			
+			setName(powerName);
+			setRankByString(rankName);
+			setDescription(desc);
+		}
+		
+		
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -62,6 +79,10 @@ public class CharPower {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void appendDescription(String extra) {
+		this.description = this.description += extra;
 	}
 
 	public void setType(PowerType type) {

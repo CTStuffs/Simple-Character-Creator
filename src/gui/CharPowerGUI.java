@@ -16,11 +16,14 @@ import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+
+import models.CharPower;
+import models.PowerType;
+import models.Character;
+
 import javax.swing.JButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import characterStuff.CharPower;
-import characterStuff.PowerType;
 
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -142,6 +145,38 @@ public class CharPowerGUI {
 		}
 	}
 	
+	
+	// sets the fields and their respective interactables depending on an inputted character
+	// activates upon selecting the load option
+	public void setInteractivesByCharacter(Character character) {
+		ArrayList<CharPower> tempTalents = character.getTalents();
+		ArrayList<CharPower> tempTechniques = character.getTechniques();
+		
+		// reset the two big text fields
+		textfieldTalents.setText("");
+		textfieldTechniques.setText("");
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		// iterate through the loading powers and set the combined strings to the respective text fields
+		for(CharPower talent: tempTalents) {
+			sb.append(talent.toString());
+		}
+		textfieldTalents.setText(sb.toString());
+		sb.setLength(0); // reset the string builder
+		
+		for(CharPower technique: tempTechniques) {
+			sb.append(technique.toString());
+		}
+		textfieldTechniques.setText(sb.toString());
+		
+		// set the two arraylists with the new lists
+		talentList = tempTalents;
+		techniqueList = tempTechniques;
+		
+	}
+	
 	// add interactive objects to the GUI
 	public void addInteractives() {
 		
@@ -186,7 +221,7 @@ public class CharPowerGUI {
 		});
 		textfieldPowerDesc.setBounds(42, 331, 317, 60);
 		textfieldPowerDesc.setBorder(etchedBorder);
-
+	
 		// TODO: Add scroll bars to these text panes
 		// text panes for displaying the talents and techniques. They cannot be edited
 		textfieldTalents = new JTextPane();

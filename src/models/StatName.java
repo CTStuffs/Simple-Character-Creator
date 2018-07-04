@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 // enum representing a stat name
 

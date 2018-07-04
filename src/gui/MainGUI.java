@@ -7,11 +7,21 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import java.awt.Color;
 import javax.swing.JToolBar;
 import javax.swing.text.NumberFormatter;
+
+import models.CharPower;
+import models.Character;
+import models.PowerType;
+import models.Stat;
+import models.StatName;
+
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
@@ -31,19 +41,19 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.JButton;
 
-
-import characterStuff.Character;
-import characterStuff.Stat;
-import characterStuff.StatName;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 
@@ -61,58 +71,58 @@ public class MainGUI {
 	private JTextField textfieldAlignment;
 	
 	// menu and menu choices
-	JMenuBar menuBar;
-	JMenu fileMenu;
-	JMenuItem menuChoiceNew;
-	JMenuItem menuChoiceLoad;
-	JMenuItem menuChoiceSave;
-	JMenu helpMenu;
+	private JMenuBar menuBar;
+	private JMenu fileMenu;
+	private JMenuItem menuChoiceNew;
+	private JMenuItem menuChoiceLoad;
+	private JMenuItem menuChoiceSave;
+	private JMenu helpMenu;
 	
 	// labels
-	JLabel lblName;
-	JLabel lblGender;
-	JLabel lblAge;
-	JLabel lblSpecies;
-	JLabel lblAlignment;
-	JLabel lblDescription;
-	JLabel lblWil;
-	JLabel lblMagic;
-	JLabel lblAgil;
-	JLabel lblPer;
-	JLabel lblCon;
-	JLabel lblOtherDesc;
-	JLabel lblStr;
+	private JLabel lblName;
+	private JLabel lblGender;
+	private JLabel lblAge;
+	private JLabel lblSpecies;
+	private JLabel lblAlignment;
+	private JLabel lblDescription;
+	private JLabel lblWil;
+	private JLabel lblMagic;
+	private JLabel lblAgil;
+	private JLabel lblPer;
+	private JLabel lblCon;
+	private JLabel lblOtherDesc;
+	private JLabel lblStr;
 	
 	// combo box and buttons
-	JComboBox comboBoxGender;
-	JButton btnEditCharPowers;
+	private JComboBox comboBoxGender;
+	private JButton btnEditCharPowers;
 	
 	// text fields
-	JTextArea textfieldDescription;
-	JFormattedTextField formatTextfieldAge;
-	JTextArea textfieldOtherDesc;
-	JFormattedTextField formatTextfieldStr;
-	JFormattedTextField formatTextfieldWil;
-	JFormattedTextField formatTextfieldMagic;
-	JFormattedTextField formatTextfieldAgl;
-	JFormattedTextField formatTextfieldCon;
-	JFormattedTextField formatTextfieldPer;
+	private JTextArea textfieldDescription;
+	private JFormattedTextField formatTextfieldAge;
+	private JTextArea textfieldOtherDesc;
+	private JFormattedTextField formatTextfieldStr;
+	private JFormattedTextField formatTextfieldWil;
+	private JFormattedTextField formatTextfieldMagic;
+	private JFormattedTextField formatTextfieldAgl;
+	private JFormattedTextField formatTextfieldCon;
+	private JFormattedTextField formatTextfieldPer;
 	
 	
 	
 	// other components 
-	Font labelFont = new Font("Tahoma", Font.PLAIN, 14);
-	Font textFieldFont = new Font("Tahoma", Font.PLAIN, 11);
+	private Font labelFont = new Font("Tahoma", Font.PLAIN, 14);
+	private Font textFieldFont = new Font("Tahoma", Font.PLAIN, 11);
 	
 	// seperate gui for the character powers
-	CharPowerGUI cpgui = CharPowerGUI.getInstance();
-	JFileChooser jfc;
+	private CharPowerGUI cpgui = CharPowerGUI.getInstance();
+	private JFileChooser jfc;
 	
 	// the character to be edited by the user
-	Character character = new Character();
-	ArrayList<GUIComponentRecord> guiComponents = new ArrayList<GUIComponentRecord>();
-	String txtFileSuffix = ".txt";
-	FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "*" + txtFileSuffix, "txt");
+	private Character character = new Character();
+	private ArrayList<GUIComponentRecord> guiComponents = new ArrayList<GUIComponentRecord>();
+	private String txtFileSuffix = ".txt";
+	private FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "*" + txtFileSuffix, "txt");
 
 	private JMenuItem menuChoicePrintDebug;
 	
@@ -360,6 +370,7 @@ public class MainGUI {
 		formatTextfieldAge.setBounds(103, 80, 86, 20);
 		formatTextfieldAge.setValue(new Integer(0));
 		
+		// TODO: add scroll bars to this and the regular Description field
 		textfieldOtherDesc = new JTextArea();
 		textfieldOtherDesc.addFocusListener(new FocusAdapter() {
 			@Override
@@ -369,6 +380,16 @@ public class MainGUI {
 		});
 		textfieldOtherDesc.setBounds(74, 327, 373, 74);
 		textfieldOtherDesc.setBorder(etchedBorder);
+//		JScrollPane sp = new JScrollPane(textfieldOtherDesc); 
+//		GridBagConstraints c = new GridBagConstraints();
+//        c.gridwidth = GridBagConstraints.REMAINDER;
+// 
+//        c.fill = GridBagConstraints.VERTICAL;
+//        c.fill = GridBagConstraints.BOTH;
+//        c.weightx = 1.0;
+//        c.weighty = 1.0;
+//		
+		
 
 		frmCharacterCreator.getContentPane().add(textfieldSpecies);
 		frmCharacterCreator.getContentPane().add(textfieldName);
@@ -376,7 +397,10 @@ public class MainGUI {
 		frmCharacterCreator.getContentPane().add(textfieldDescription);
 		frmCharacterCreator.getContentPane().add(formatTextfieldAge);
 		frmCharacterCreator.getContentPane().add(textfieldOtherDesc);
+		//frmCharacterCreator.getContentPane().add(sp);
 	}
+	
+	
 	
 	// initializes other interactables on the gui, such as combox boxes
 	public void initializeInteractables() {
@@ -523,6 +547,153 @@ public class MainGUI {
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
 					System.out.println("Opened file: " + file.getAbsolutePath());
+					
+					Character tempCharacter = new Character();
+					
+					// start the file reading process
+					try (BufferedReader br = new BufferedReader(new FileReader(file))) 
+					{
+						String line;
+						
+						ArrayList<CharPower> tempTalents = new ArrayList<CharPower>();
+						ArrayList<CharPower> tempTechniques = new ArrayList<CharPower>();
+						String squareBracketsPattern = "\\[\\w+\\]";
+						String charPowerPattern = "[\\w\\s]+ \\(\\w\\): [\\w\\s]+";
+						
+						boolean squareBracketsFound = false;
+						boolean talentHeaderFound = false;
+						boolean techniqueHeaderFound = false;
+						boolean otherDescHeaderFound = false;
+						CharPower newPower = null;
+						StringBuilder sb = new StringBuilder();
+						while ((line = br.readLine()) != null) {
+							
+						       // process the line.
+							if (!line.isEmpty()) {
+								// check for talent/technique/other strings
+								if (line.matches(squareBracketsPattern)) {
+									talentHeaderFound = false;
+									techniqueHeaderFound = false;
+									otherDescHeaderFound = false;
+									
+									String categoryName = line.substring(1, line.length() - 1);
+									
+									if (categoryName.equals("TALENTS")) {
+										talentHeaderFound = true;
+									}
+									else if (categoryName.equals("TECHNIQUES")) {
+										techniqueHeaderFound = true;
+									}
+									else if (categoryName.equals("OTHER")) {
+										otherDescHeaderFound = true;
+									}
+								}
+								else if (line.matches(charPowerPattern)) {
+									
+									// for the previous character power
+									// this part should be avoided on the first run
+									if (sb.length() > 0) {
+										if (talentHeaderFound || techniqueHeaderFound) {
+											// append the character power object with the new strings that have been collected
+											newPower.appendDescription(sb.toString());
+											sb = new StringBuilder();
+										}
+									}
+									
+									// re-initialize the new power variable (or initialize it for the first time)
+									newPower = new CharPower();
+									
+									if (talentHeaderFound) {
+										newPower.setType(PowerType.TALENT);
+										newPower.setFieldsByRawText(line);
+										tempTalents.add(newPower);
+									}
+									else if (techniqueHeaderFound) {
+										newPower.setType(PowerType.TECHNIQUE);
+										newPower.setFieldsByRawText(line);
+										tempTechniques.add(newPower);
+									}
+									
+								}
+								else {
+									
+									// append with the other description text
+									if (otherDescHeaderFound) {
+										sb.append(line + "\n");
+									}
+									// append with the talent or technique text
+									else if (talentHeaderFound || techniqueHeaderFound) {
+										sb.append("\n" + line + "\n");
+									}
+									// for all the other fields
+									else {
+										
+										String[] parts = line.split(":");
+										String fieldName = parts[0].trim();
+										String fieldData = parts[1].trim();
+										System.out.println("Name -> " + fieldName + " , Data -> " + fieldData);
+										
+										// switch statement for field names
+										switch (fieldName) {
+										case "NAME":
+											tempCharacter.setName(fieldData);
+											break;
+										case "GENDER":
+											tempCharacter.setGender(fieldData);
+											break;
+										case "AGE":
+											tempCharacter.setAge(Integer.parseInt(fieldData));
+											break;
+										case "ALIGNMENT":
+											tempCharacter.setAlignment(fieldData);
+											break;
+										case "DESCRIPTION":
+											tempCharacter.setDescription(fieldData);
+											break;
+										case "SPECIES":
+											tempCharacter.setSpecies(fieldData);
+											break;
+										case "STATS":
+											// split the text into 6 parts and set them into the character object
+											String[] statParts = fieldData.split(",");
+											if (statParts.length != 6) {
+												System.err.println("Could not split the stat string into 6 parts! Something has gone wrong!");
+											}
+											else {
+												for (String statString: statParts) {
+													// seperate text and number
+													String[] singleStatParts = statString.split("(?<=\\D)(?=\\d)");
+													tempCharacter.updateStatByString(singleStatParts[0].trim(), Integer.parseInt(singleStatParts[1]));
+												}
+											}
+											break;
+										default:
+											// TODO: write better validation here
+											throw new Exception();
+										}
+									}
+
+								}
+								
+							}
+							
+						}
+						tempCharacter.setOtherDesc(sb.toString());
+						tempCharacter.setTalents(tempTalents);
+						tempCharacter.setTechniques(tempTechniques);
+						sb = new StringBuilder();
+						
+						// set the current character into all the interactable fields
+						character = tempCharacter;
+						cpgui.setInteractivesByCharacter(tempCharacter);
+						reupdateTextFields();
+						
+					}
+					catch (Exception e2) {
+						e2.printStackTrace();	
+					}
+					
+					
 				}
 				else {
 					System.out.println("Open command cancelled by user.");
@@ -554,7 +725,6 @@ public class MainGUI {
 						swd.end();
 						return;
 					}
-					//swd.end();
 				}
 				
 				// get talent and technique list from the seperate window
@@ -617,4 +787,22 @@ public class MainGUI {
 		frmCharacterCreator.getContentPane().setLayout(null);
 		
 	}
+	
+	// re-updates all the text fields in the GUI based on the current Character object
+	public void reupdateTextFields() {
+		textfieldDescription.setText(character.getDescription());
+		formatTextfieldAge.setText(String.valueOf(character.getAge()));
+		textfieldOtherDesc.setText(character.getOtherDesc());
+		textfieldName.setText(character.getName());
+		textfieldAlignment.setText(character.getAlignment());
+		textfieldSpecies.setText(character.getAlignment());
+		formatTextfieldStr.setText(String.valueOf(character.getStatByString("STRENGTH")));
+		formatTextfieldWil.setText(String.valueOf(character.getStatByString("WILLPOWER")));
+		formatTextfieldMagic.setText(String.valueOf(character.getStatByString("MAGIC POTENTIAL")));
+		formatTextfieldAgl.setText(String.valueOf(character.getStatByString("AGILITY")));
+		formatTextfieldCon.setText(String.valueOf(character.getStatByString("CONSTITUTION")));
+		formatTextfieldPer.setText(String.valueOf(character.getStatByString("PERCEPTION")));
+	}
+	
+	
 }

@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 import java.util.ArrayList;
 
@@ -43,21 +43,21 @@ public class Character {
 		sb.append("\n");
 		
 		sb.append("STATS: " + stats.toString()  + "\n\n");
-		sb.append("[TALENTS]:\n");
+		sb.append("[TALENTS]\n");
 		
 		for (CharPower tal: talents) {
 			if (tal.getType() == PowerType.TALENT) {
 				sb.append(tal.toString() + "\n");
 			}
 		}
-		sb.append("\n[TECHNIQUES]:\n");
+		sb.append("\n[TECHNIQUES]\n");
 		for (CharPower tech: techniques) {
 			if (tech.getType() == PowerType.TECHNIQUE) {
 				sb.append(tech.toString() + "\n");
 			}
 		}
 		
-		sb.append("\n[OTHER]:\n" + otherDesc + "\n");
+		sb.append("\n[OTHER]\n" + otherDesc + "\n");
 		
 		return sb.toString();
 	}
@@ -116,14 +116,45 @@ public class Character {
 		stats.updateStat(sn, val);
 	}
 	
+	public void updateStatByString(String sn, int val) {
+		
+		if (sn.equals("MAGIC POTENTIAL")) {
+			stats.updateStat(StatName.MAGIC_POTENTIAL, val);
+		}
+		else {
+			stats.updateStat(StatName.valueOf(sn), val);
+		}
+		
+		
+	}
+	
+	// returns a stat of the character based on a string
+	// TODO: adds validation
+	public int getStatByString(String sn) {
+		if (sn.equals("MAGIC POTENTIAL")) {
+			return stats.getStat(StatName.MAGIC_POTENTIAL);
+		}
+		else {
+			return stats.getStat(StatName.valueOf(sn));
+		}
+	}
+	
 	public void addTalent(String name, Rank rank, String description) {
 		CharPower t = new CharPower(name, rank, description, PowerType.TALENT);
 		talents.add(t);
 	}
 	
+	public void addTalent(CharPower talent) {
+		talents.add(talent);
+	}
+	
 	public void addTechnique(String name, Rank rank, String description) {
 		CharPower tech = new CharPower(name, rank, description, PowerType.TECHNIQUE);
 		techniques.add(tech);
+	}
+	
+	public void addTechnique(CharPower technique) {
+		techniques.add(technique);
 	}
 	
 	public void setTalents(ArrayList<CharPower> talents) {
@@ -142,6 +173,13 @@ public class Character {
 		this.otherDesc = otherDesc;
 	}
 	
+	public ArrayList<CharPower> getTalents() {
+		return talents;
+	}
+	
+	public ArrayList<CharPower> getTechniques() {
+		return techniques;
+	}
 
 	/*
 	public StatCollection getStats() {
@@ -155,16 +193,12 @@ public class Character {
 	
 	
 	
-	public ArrayList<Talent> getTalents() {
-		return talents;
-	}
-
 	
 
 	
-	public ArrayList<Technique> getTechniques() {
-		return techniques;
-	}
+
+	
+
 
 	public void setTechniques(ArrayList<Technique> techniques) {
 		this.techniques = techniques;

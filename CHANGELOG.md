@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2018-6-03
+
+### Changed
+- Fully fleshed out the character file loading process
+- Cleaned up some more parts of the code
+
+
 ## [1.0.1] - 2018-6-02
 
 ### Added

@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 // enum for the power types
 

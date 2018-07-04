@@ -1,4 +1,4 @@
-package characterStuff;
+package models;
 
 // object representing a collection of stats
 
@@ -24,6 +24,10 @@ public class StatCollection {
 	
 	public void resetStat(StatName sname) {
 		stats.put(sname, 0);
+	}
+	
+	public int getStat(StatName sname) {
+		return stats.get(sname);
 	}
 	
 	public String toString() {

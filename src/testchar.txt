@@ -1,0 +1,19 @@
+NAME: test
+GENDER: Male
+AGE: 12
+ALIGNMENT: adsf
+SPECIES: asdf
+DESCRIPTION: asdfadsf
+
+STATS: STRENGTH 12, MAGIC POTENTIAL 12, CONSTITUTION 12, PERCEPTION 12, AGILITY 21, WILLPOWER 21
+
+[TALENTS]
+talent 1 (E): testing talent
+talent 2 (D): testing talent 2
+
+[TECHNIQUES]
+technique 1 (A): testing technique 
+technique 2 (S): testing technique 2
+
+[OTHER]
+adsfsdafsdaf
