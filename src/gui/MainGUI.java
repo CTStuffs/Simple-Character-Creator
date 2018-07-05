@@ -6,22 +6,18 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import java.awt.Color;
-import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.text.NumberFormatter;
 
 import models.CharPower;
 import models.Character;
 import models.PowerType;
-import models.Stat;
-import models.StatName;
 
 import javax.swing.JLabel;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
@@ -32,11 +28,9 @@ import javax.swing.JFileChooser;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFormattedTextField;
-import java.awt.SystemColor;
 
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.JButton;
@@ -48,14 +42,11 @@ import java.awt.event.FocusEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
-import java.nio.file.Files;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * 
@@ -63,9 +54,9 @@ import java.nio.file.Files;
  * 
  * **/
 
-public class MainGUI {
+public class MainGUI extends JFrame {
 
-	private JFrame frmCharacterCreator;
+	//private JFrame this;
 	private JTextField textfieldName;
 	private JTextField textfieldSpecies;
 	private JTextField textfieldAlignment;
@@ -85,13 +76,7 @@ public class MainGUI {
 	private JLabel lblSpecies;
 	private JLabel lblAlignment;
 	private JLabel lblDescription;
-	private JLabel lblWil;
-	private JLabel lblMagic;
-	private JLabel lblAgil;
-	private JLabel lblPer;
-	private JLabel lblCon;
 	private JLabel lblOtherDesc;
-	private JLabel lblStr;
 	
 	// combo box and buttons
 	private JComboBox comboBoxGender;
@@ -101,21 +86,16 @@ public class MainGUI {
 	private JTextArea textfieldDescription;
 	private JFormattedTextField formatTextfieldAge;
 	private JTextArea textfieldOtherDesc;
-	private JFormattedTextField formatTextfieldStr;
-	private JFormattedTextField formatTextfieldWil;
-	private JFormattedTextField formatTextfieldMagic;
-	private JFormattedTextField formatTextfieldAgl;
-	private JFormattedTextField formatTextfieldCon;
-	private JFormattedTextField formatTextfieldPer;
-	
-	
-	
+	private JButton btnEditStats;
+
 	// other components 
 	private Font labelFont = new Font("Tahoma", Font.PLAIN, 14);
 	private Font textFieldFont = new Font("Tahoma", Font.PLAIN, 11);
+	GUIUtility util = new GUIUtility();
 	
 	// seperate gui for the character powers
-	private CharPowerGUI cpgui = CharPowerGUI.getInstance();
+	private CharPowerGUI powerGui = CharPowerGUI.getInstance();
+	private StatGUI statGui = StatGUI.getInstance();
 	private JFileChooser jfc;
 	
 	// the character to be edited by the user
@@ -134,7 +114,7 @@ public class MainGUI {
 			public void run() {
 				try {
 					MainGUI window = new MainGUI();
-					window.frmCharacterCreator.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -153,24 +133,15 @@ public class MainGUI {
 	 * Initialize the contents of the frame.
 	 */
 	
-	public int convertToInt(String text) {
-		text = text.replaceAll(",", "");
-		
-		int number = Integer.parseInt(text);
-		return number;
-	}
-	
 	// program that initializes the gui components, including the frame
 	private void initialize() {
-		frmCharacterCreator = new JFrame();
-		frmCharacterCreator.getContentPane().setFont(labelFont);
-		frmCharacterCreator.setTitle("Character Creator");
-		frmCharacterCreator.setBounds(100, 100, 488, 470);
-		frmCharacterCreator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.getContentPane().setFont(labelFont);
+		this.setTitle("Character Creator");
+		this.setBounds(100, 100, 488, 471);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		initializeMenu();
 		initializeTextFields();
-		initializeStatFields();
 		initializeInteractables();
 		initializeLabels();
 		createGUIRecords();
@@ -178,7 +149,7 @@ public class MainGUI {
 		
 	}
 	
-	// adds the gui components to an arraylist for further processing l=
+	// record all the text fields in the gui
 	public void createGUIRecords() {
 		guiComponents.add(new GUIComponentRecord(textfieldName, "Name"));
 		guiComponents.add(new GUIComponentRecord(textfieldSpecies, "Species"));
@@ -186,12 +157,6 @@ public class MainGUI {
 		guiComponents.add(new GUIComponentRecord(textfieldDescription, "Description"));
 		guiComponents.add(new GUIComponentRecord(formatTextfieldAge, "Age"));
 		guiComponents.add(new GUIComponentRecord(textfieldOtherDesc, "Other Description"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldStr, "Strength Stat"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldWil, "Willpower Stat"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldMagic, "Magic Stat"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldAgl, "Agility Stat"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldCon, "Constitution Stat"));
-		guiComponents.add(new GUIComponentRecord(formatTextfieldPer, "Perception Stat"));
 	}
 
 
@@ -199,68 +164,33 @@ public class MainGUI {
 	public void initializeLabels() {
 		lblName = new JLabel("Name:");
 		lblName.setFont(labelFont);
-		lblName.setBounds(21, 19, 46, 14);
-		frmCharacterCreator.getContentPane().add(lblName);
+		this.getContentPane().add(lblName, "cell 0 0,growx,aligny center");
 		
 		lblGender = new JLabel("Gender:");
 		lblGender.setFont(labelFont);
-		lblGender.setBounds(21, 44, 57, 14);
-		frmCharacterCreator.getContentPane().add(lblGender);
+		this.getContentPane().add(lblGender, "cell 0 1 3 1,alignx left,aligny top");
 		
 		lblAge = new JLabel("Age:");
 		lblAge.setFont(labelFont);
-		lblAge.setBounds(21, 80, 46, 23);
-		frmCharacterCreator.getContentPane().add(lblAge);
+		this.getContentPane().add(lblAge, "cell 0 3 3 1,grow");
 		
 		lblSpecies = new JLabel("Species:");
 		lblSpecies.setFont(labelFont);
-		lblSpecies.setBounds(21, 105, 71, 23);
-		frmCharacterCreator.getContentPane().add(lblSpecies);
+		this.getContentPane().add(lblSpecies, "cell 0 5 3 1,grow");
 		
 		lblAlignment = new JLabel("Alignment:");
 		lblAlignment.setFont(labelFont);
-		lblAlignment.setBounds(21, 130, 71, 23);
-		frmCharacterCreator.getContentPane().add(lblAlignment);
+		this.getContentPane().add(lblAlignment, "cell 0 7 3 1,grow");
 		
 		lblDescription = new JLabel("Description:");
 		lblDescription.setFont(labelFont);
-		lblDescription.setBounds(232, 16, 94, 23);
-		frmCharacterCreator.getContentPane().add(lblDescription);
+		this.getContentPane().add(lblDescription, "cell 6 0,alignx left,growy");
 		
 		lblOtherDesc = new JLabel("Other: ");
 		lblOtherDesc.setFont(labelFont);
-		lblOtherDesc.setBounds(21, 326, 46, 23);
-		frmCharacterCreator.getContentPane().add(lblOtherDesc);
+		this.getContentPane().add(lblOtherDesc, "cell 0 10,growx,aligny top");
 		
-		lblStr = new JLabel("STRENGTH:");
-		lblStr.setFont(labelFont);
-		lblStr.setBounds(21, 175, 86, 14);
-		frmCharacterCreator.getContentPane().add(lblStr);
 		
-		lblWil = new JLabel("WILLPOWER:");
-		lblWil.setFont(labelFont);
-		lblWil.setBounds(235, 175, 89, 14);
-		frmCharacterCreator.getContentPane().add(lblWil);
-		
-		lblMagic = new JLabel("MAGIC POTENTIAL:");
-		lblMagic.setFont(labelFont);
-		lblMagic.setBounds(235, 200, 130, 14);
-		frmCharacterCreator.getContentPane().add(lblMagic);
-		
-		lblAgil = new JLabel("AGILITY:");
-		lblAgil.setFont(labelFont);
-		lblAgil.setBounds(235, 225, 89, 14);
-		frmCharacterCreator.getContentPane().add(lblAgil);
-		
-		lblPer = new JLabel("PERCEPTION:");
-		lblPer.setFont(labelFont);
-		lblPer.setBounds(21, 200, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblPer);
-		
-		lblCon = new JLabel("CONSTITUTION:");
-		lblCon.setFont(labelFont);
-		lblCon.setBounds(21, 225, 116, 14);
-		frmCharacterCreator.getContentPane().add(lblCon);
 	}
 	
 	
@@ -280,11 +210,14 @@ public class MainGUI {
 			}
 		}
 		
+		// add the empty fields from the stat gui
+		sb.append(statGui.getEmptyFieldsAsString());
+		
 		// do the same for the talents and technique arraylists
-		if (cpgui.getTalents().size() <= 0) {
+		if (powerGui.getTalents().size() <= 0) {
 			sb.append("Talents, ");
 		}
-		if (cpgui.getTechniques().size() <= 0) {
+		if (powerGui.getTechniques().size() <= 0) {
 			sb.append("Techniques, ");
 		}
 		
@@ -324,7 +257,6 @@ public class MainGUI {
 				character.setName(textfieldSpecies.getText());
 			}
 		});
-		textfieldName.setBounds(103, 19, 86, 20);
 		textfieldName.setColumns(10);
 		
 		textfieldSpecies = new JTextField();
@@ -334,7 +266,6 @@ public class MainGUI {
 				character.setSpecies(textfieldSpecies.getText());
 			}
 		});
-		textfieldSpecies.setBounds(103, 105, 86, 20);
 		textfieldSpecies.setColumns(10);
 		
 		textfieldAlignment = new JTextField();
@@ -344,7 +275,6 @@ public class MainGUI {
 				character.setAlignment(textfieldAlignment.getText());
 			}
 		});
-		textfieldAlignment.setBounds(103, 130, 86, 20);
 		textfieldAlignment.setColumns(10);
 		
 		textfieldDescription = new JTextArea();
@@ -357,20 +287,21 @@ public class MainGUI {
 			}
 		});
 		textfieldDescription.setFont(new Font("Monospaced", Font.PLAIN, 13));
-		textfieldDescription.setBounds(233, 45, 214, 105);
 		textfieldDescription.setBorder(etchedBorder);
+		
+		JScrollPane descriptionTextScroll = new JScrollPane(textfieldDescription);
+		descriptionTextScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		
 		formatTextfieldAge = new JFormattedTextField(numFormatter);
 		formatTextfieldAge.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				character.setAge(convertToInt(formatTextfieldAge.getText()));
+				character.setAge(util.convertToInt(formatTextfieldAge.getText()));
 			}
 		});
-		formatTextfieldAge.setBounds(103, 80, 86, 20);
 		formatTextfieldAge.setValue(new Integer(0));
-		
-		// TODO: add scroll bars to this and the regular Description field
+
 		textfieldOtherDesc = new JTextArea();
 		textfieldOtherDesc.addFocusListener(new FocusAdapter() {
 			@Override
@@ -378,26 +309,29 @@ public class MainGUI {
 				character.setOtherDesc(textfieldOtherDesc.getText());
 			}
 		});
-		textfieldOtherDesc.setBounds(74, 327, 373, 74);
 		textfieldOtherDesc.setBorder(etchedBorder);
-//		JScrollPane sp = new JScrollPane(textfieldOtherDesc); 
-//		GridBagConstraints c = new GridBagConstraints();
-//        c.gridwidth = GridBagConstraints.REMAINDER;
-// 
-//        c.fill = GridBagConstraints.VERTICAL;
-//        c.fill = GridBagConstraints.BOTH;
-//        c.weightx = 1.0;
-//        c.weighty = 1.0;
-//		
+		textfieldOtherDesc.setLineWrap(true);
+		textfieldOtherDesc.setWrapStyleWord(true);
 		
+		JScrollPane otherDescTextScroll = new JScrollPane(textfieldOtherDesc);
+		otherDescTextScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		getContentPane().setLayout(new MigLayout("", "[46px][7px][18px][11px][115.00px:85.00px][43px][215px]", "[23px][20px][16px][23px][2px][23px][2px][23px][23px][27.00px][97.00px]"));
 
-		frmCharacterCreator.getContentPane().add(textfieldSpecies);
-		frmCharacterCreator.getContentPane().add(textfieldName);
-		frmCharacterCreator.getContentPane().add(textfieldAlignment);
-		frmCharacterCreator.getContentPane().add(textfieldDescription);
-		frmCharacterCreator.getContentPane().add(formatTextfieldAge);
-		frmCharacterCreator.getContentPane().add(textfieldOtherDesc);
-		//frmCharacterCreator.getContentPane().add(sp);
+		this.getContentPane().add(textfieldSpecies, "cell 4 5,growx,aligny top");
+		this.getContentPane().add(textfieldName, "cell 4 0,growx,aligny bottom");
+		this.getContentPane().add(textfieldAlignment, "cell 4 7,growx,aligny top");
+		this.getContentPane().add(descriptionTextScroll, "cell 6 1 1 5,grow");
+		this.getContentPane().add(formatTextfieldAge, "cell 4 3,growx,aligny top");
+		
+		JButton btnEditStats_1 = new JButton("Edit Stats");
+		btnEditStats_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				statGui.run();
+			}
+		});
+		getContentPane().add(btnEditStats_1, "cell 2 8 4 1,growx,aligny center");
+		this.getContentPane().add(otherDescTextScroll, "cell 2 10 5 1,grow");
 	}
 	
 	
@@ -415,128 +349,43 @@ public class MainGUI {
 		});
 		comboBoxGender.setModel(new DefaultComboBoxModel<Object>(new String[] {"Male", "Female", "Other"}));
 		comboBoxGender.setSelectedIndex(0);
-		comboBoxGender.setBounds(103, 44, 86, 20);
-		
-
+	
 		btnEditCharPowers = new JButton("Edit Talents and Techniques");
 		btnEditCharPowers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cpgui.run();
+				powerGui.run();
 			}
 		});
-		btnEditCharPowers.setBounds(126, 272, 225, 23);
 		
-		frmCharacterCreator.getContentPane().add(comboBoxGender);
-		frmCharacterCreator.getContentPane().add(btnEditCharPowers);
+		this.getContentPane().add(comboBoxGender, "cell 4 1,growx,aligny top");
+		this.getContentPane().add(btnEditCharPowers, "cell 2 9 4 1,growx,aligny center");
 	}
 	
-	// initializes the stat fields for the gui
-	public void initializeStatFields() {
-		
-		// number formatter for the stat fields
-		NumberFormat statFormat = NumberFormat.getInstance();
-		NumberFormatter statFormatter = new NumberFormatter(statFormat);
-		statFormatter.setValueClass(Integer.class);
-		statFormatter.setMinimum(0);
-		statFormatter.setMaximum(Integer.MAX_VALUE);
-		statFormatter.setAllowsInvalid(false);
-		statFormatter.setCommitsOnValidEdit(true);
-		
-		formatTextfieldStr = new JFormattedTextField(statFormatter);
-		formatTextfieldStr.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!formatTextfieldStr.getText().isEmpty()) {
-					character.updateStat(StatName.STRENGTH, convertToInt(formatTextfieldStr.getText()));
-				}
-			}
-		});
-		formatTextfieldStr.setColumns(10);
-		formatTextfieldStr.setBounds(149, 174, 61, 20);
 
-		formatTextfieldWil = new JFormattedTextField(statFormatter);
-		formatTextfieldWil.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e){
-				if (!formatTextfieldWil.getText().isEmpty()) {
-					character.updateStat(StatName.WILLPOWER, convertToInt(formatTextfieldWil.getText()));
-				}
-			}
-		});
-		formatTextfieldWil.setColumns(10);
-		formatTextfieldWil.setBounds(386, 174, 61, 20);
-		
-		formatTextfieldMagic = new JFormattedTextField(statFormatter);
-		formatTextfieldMagic.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!formatTextfieldMagic.getText().isEmpty()) {
-					character.updateStat(StatName.MAGIC_POTENTIAL, convertToInt(formatTextfieldMagic.getText()));
-				}
-			}
-		});
-		formatTextfieldMagic.setColumns(10);
-		formatTextfieldMagic.setBounds(386, 199, 61, 20);
-	
-		formatTextfieldAgl = new JFormattedTextField(statFormatter);
-		formatTextfieldAgl.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!formatTextfieldAgl.getText().isEmpty()) {
-					character.updateStat(StatName.AGILITY, convertToInt(formatTextfieldAgl.getText()));
-				}
-			}	
-		});
-		formatTextfieldAgl.setColumns(10);
-		formatTextfieldAgl.setBounds(386, 224, 61, 20);
-
-		formatTextfieldCon = new JFormattedTextField(statFormatter);
-		formatTextfieldCon.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!formatTextfieldCon.getText().isEmpty()) {
-					character.updateStat(StatName.CONSTITUTION, convertToInt(formatTextfieldCon.getText()));
-				}
-			}
-		});
-		formatTextfieldCon.setColumns(10);
-		formatTextfieldCon.setBounds(149, 224, 61, 20);
-		
-		formatTextfieldPer = new JFormattedTextField(statFormatter);
-		formatTextfieldPer.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!formatTextfieldPer.getText().isEmpty()) {
-					character.updateStat(StatName.PERCEPTION, convertToInt(formatTextfieldPer.getText()));
-				}
-			}
-		});
-		formatTextfieldPer.setColumns(10);
-		formatTextfieldPer.setBounds(149, 199, 61, 20);
-		
-		frmCharacterCreator.getContentPane().add(formatTextfieldStr);
-		frmCharacterCreator.getContentPane().add(formatTextfieldWil);
-		frmCharacterCreator.getContentPane().add(formatTextfieldMagic);
-		frmCharacterCreator.getContentPane().add(formatTextfieldAgl);
-		frmCharacterCreator.getContentPane().add(formatTextfieldCon);
-		frmCharacterCreator.getContentPane().add(formatTextfieldPer);	
-	}
 	
 	// initializes the menu parts
 	public void initializeMenu() {
 		menuBar = new JMenuBar();
-		frmCharacterCreator.setJMenuBar(menuBar);
+		this.setJMenuBar(menuBar);
 		
 		fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
 		
 		menuChoiceNew = new JMenuItem("New");
+		menuChoiceNew.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				character = new Character();
+				resetFields();
+				statGui.resetFields();
+				powerGui.resetFields();
+				
+			}
+		});
 		fileMenu.add(menuChoiceNew);
 		
 		menuChoiceLoad = new JMenuItem("Load");
 		
 		// loading function
-		// TODO: Finish the loading function
 		menuChoiceLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				jfc = new JFileChooser();
@@ -685,7 +534,8 @@ public class MainGUI {
 						
 						// set the current character into all the interactable fields
 						character = tempCharacter;
-						cpgui.setInteractivesByCharacter(tempCharacter);
+						powerGui.setInteractivesByCharacter(tempCharacter);
+						statGui.setFieldsByCharacter(tempCharacter);
 						reupdateTextFields();
 						
 					}
@@ -728,13 +578,15 @@ public class MainGUI {
 				}
 				
 				// get talent and technique list from the seperate window
-				if (cpgui.getTalents().size() > 0) {
-					character.setTalents(cpgui.getTalents());
+				if (powerGui.getTalents().size() > 0) {
+					character.setTalents(powerGui.getTalents());
 				}
 				
-				if (cpgui.getTechniques().size() > 0) {
-					character.setTechniques(cpgui.getTechniques());
+				if (powerGui.getTechniques().size() > 0) {
+					character.setTechniques(powerGui.getTechniques());
 				}
+				
+				character.setStats(statGui.getStats());
 
 				// create the file chooser
 				jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
@@ -784,7 +636,6 @@ public class MainGUI {
 			}
 		});
 		helpMenu.add(menuChoicePrintDebug);
-		frmCharacterCreator.getContentPane().setLayout(null);
 		
 	}
 	
@@ -796,13 +647,17 @@ public class MainGUI {
 		textfieldName.setText(character.getName());
 		textfieldAlignment.setText(character.getAlignment());
 		textfieldSpecies.setText(character.getAlignment());
-		formatTextfieldStr.setText(String.valueOf(character.getStatByString("STRENGTH")));
-		formatTextfieldWil.setText(String.valueOf(character.getStatByString("WILLPOWER")));
-		formatTextfieldMagic.setText(String.valueOf(character.getStatByString("MAGIC POTENTIAL")));
-		formatTextfieldAgl.setText(String.valueOf(character.getStatByString("AGILITY")));
-		formatTextfieldCon.setText(String.valueOf(character.getStatByString("CONSTITUTION")));
-		formatTextfieldPer.setText(String.valueOf(character.getStatByString("PERCEPTION")));
 	}
 	
-	
+	// resets all the fields in the gui (including the single combo box)
+	public void resetFields() {
+		comboBoxGender.setSelectedIndex(0);
+		for (GUIComponentRecord record: guiComponents) {
+			if (!record.getText().isEmpty()) {
+				record.setText("");
+			}
+			// above code doesn't work on the age text field
+			formatTextfieldAge.setText("0");
+		}
+	}
 }

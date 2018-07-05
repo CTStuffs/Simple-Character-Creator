@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import net.miginfocom.swing.MigLayout;
 
 public class SaveWarningDialog extends JDialog {
 	JButton btnOk = new JButton("OK");
@@ -50,8 +51,7 @@ public class SaveWarningDialog extends JDialog {
 	 */
 	public SaveWarningDialog() {
 		setTitle("Warning!");
-		setBounds(100, 100, 319, 214);
-		getContentPane().setLayout(null);
+		setBounds(100, 100, 319, 193);
 		
 		
 		btnOk.addActionListener(new ActionListener() {
@@ -60,22 +60,18 @@ public class SaveWarningDialog extends JDialog {
 				end();
 			}
 		});
-		
-		btnOk.setBounds(32, 140, 89, 23);
-		getContentPane().add(btnOk);
+		getContentPane().setLayout(new MigLayout("", "[111px][59px][113px]", "[118px][23px]"));
+		getContentPane().add(btnOk, "cell 0 1,growx,aligny top");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				result = false;
 				end();
 			}
 		});
-		
-		btnCancel.setBounds(180, 140, 89, 23);
-		getContentPane().add(btnCancel);
+		getContentPane().add(btnCancel, "cell 2 1,growx,aligny top");
 		
 		lblWarning.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblWarning.setBounds(10, 11, 283, 118);
-		getContentPane().add(lblWarning);
+		getContentPane().add(lblWarning, "cell 0 0 3 1,grow");
 //		this.setModal(true);
 //		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}

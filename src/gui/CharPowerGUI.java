@@ -33,6 +33,7 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The GUI for add new character powers 
@@ -42,14 +43,14 @@ import java.awt.event.ActionEvent;
 // TODO: Figure out how to edit and delete already added character powers
 
 
-public class CharPowerGUI {
+public class CharPowerGUI extends JDialog {
 
-	private JDialog charPowerMainpanel;
+	//private JDialog this;
 	private JTextField textfieldPowerName;
 	private static CharPowerGUI instance = null;
 	
 	JLabel lblName;
-	JComboBox comboxBoxRank;
+	JComboBox comboBoxRank;
 	JComboBox comboBoxPowerType;
 	JTextArea textfieldPowerDesc;
 	JLabel lblPowerDescription;
@@ -90,7 +91,7 @@ public class CharPowerGUI {
 			public void run() {
 				try {
 					CharPowerGUI window = new CharPowerGUI();
-					window.charPowerMainpanel.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -106,21 +107,19 @@ public class CharPowerGUI {
 	 };
 	
 	public void run() {
-		this.charPowerMainpanel.setVisible(true);
+		this.setVisible(true);
 	}
 	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		charPowerMainpanel = new JDialog();
-		charPowerMainpanel.setTitle("Edit Character Powers");
-		charPowerMainpanel.setBounds(100, 100, 418, 482);
-		charPowerMainpanel.getContentPane().setLayout(null);
+		this.setTitle("Edit Character Powers");
+		this.setBounds(100, 100, 384, 445);
 		addLabels();
 		addInteractives();
 		
-		this.charPowerMainpanel.setModal(true);
+		this.setModal(true);
 	}
 	
 	
@@ -134,7 +133,7 @@ public class CharPowerGUI {
 	
 	// TODO: Add validation for these two
 	private void setRankToCharPower() {
-		newPower.setRankByString(comboxBoxRank.getSelectedItem().toString());
+		newPower.setRankByString(comboBoxRank.getSelectedItem().toString());
 	}
 	private void setTypeToCharPower() {
 		newPower.setTypeByString(comboBoxPowerType.getSelectedItem().toString());
@@ -188,18 +187,16 @@ public class CharPowerGUI {
 				setNameToCharacter();
 			}
 		});
-		textfieldPowerName.setBounds(42, 280, 121, 20);
 		textfieldPowerName.setColumns(10);
 		
-		comboxBoxRank = new JComboBox();
-		comboxBoxRank.addActionListener(new ActionListener() {
+		comboBoxRank = new JComboBox();
+		comboBoxRank.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setRankToCharPower();
 			}
 		});
-		comboxBoxRank.setModel(new DefaultComboBoxModel(new String[] {"E", "D", "C", "B", "A", "S"}));
-		comboxBoxRank.setBounds(313, 280, 48, 20);
-		comboxBoxRank.setSelectedIndex(0);
+		comboBoxRank.setModel(new DefaultComboBoxModel(new String[] {"E", "D", "C", "B", "A", "S"}));
+		comboBoxRank.setSelectedIndex(0);
 		
 		comboBoxPowerType = new JComboBox();
 		comboBoxPowerType.addActionListener(new ActionListener() {
@@ -208,10 +205,10 @@ public class CharPowerGUI {
 			}
 		});
 		comboBoxPowerType.setModel(new DefaultComboBoxModel(new String[] {"Talent", "Technique"}));
-		comboBoxPowerType.setBounds(205, 280, 91, 20);
 		comboBoxPowerType.setSelectedIndex(0);
 		
 		textfieldPowerDesc = new JTextArea();
+		textfieldPowerDesc.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		textfieldPowerDesc.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
@@ -219,22 +216,27 @@ public class CharPowerGUI {
 				
 			}
 		});
-		textfieldPowerDesc.setBounds(42, 331, 317, 60);
 		textfieldPowerDesc.setBorder(etchedBorder);
+		JScrollPane powerDescScroll = new JScrollPane(textfieldPowerDesc);
+		powerDescScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 	
 		// TODO: Add scroll bars to these text panes
 		// text panes for displaying the talents and techniques. They cannot be edited
 		textfieldTalents = new JTextPane();
-		textfieldTalents.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		textfieldTalents.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		textfieldTalents.setEditable(false);
-		textfieldTalents.setBounds(42, 37, 317, 86);
 		textfieldTalents.setBorder(etchedBorder);
 
+		JScrollPane talentTextScroll = new JScrollPane(textfieldTalents);
+		talentTextScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		textfieldTechniques = new JTextPane();
-		textfieldTechniques.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		textfieldTechniques.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		textfieldTechniques.setEditable(false);
-		textfieldTechniques.setBounds(42, 158, 317, 86);
 		textfieldTechniques.setBorder(etchedBorder);
+		
+		JScrollPane techniqueTextScroll = new JScrollPane(textfieldTechniques);
+		techniqueTextScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		btnAddPower = new JButton("Add Power");
 		btnAddPower.addActionListener(new ActionListener() {
@@ -290,15 +292,14 @@ public class CharPowerGUI {
 				}
 			}
 		});
-		btnAddPower.setBounds(42, 402, 121, 23);
 		
-		charPowerMainpanel.getContentPane().add(textfieldPowerName);
-		charPowerMainpanel.getContentPane().add(comboxBoxRank);
-		charPowerMainpanel.getContentPane().add(comboBoxPowerType);
-		charPowerMainpanel.getContentPane().add(textfieldPowerDesc);
-		charPowerMainpanel.getContentPane().add(textfieldTalents);
-		charPowerMainpanel.getContentPane().add(textfieldTechniques);
-		charPowerMainpanel.getContentPane().add(btnAddPower);
+		this.getContentPane().add(textfieldPowerName, "cell 0 5,growx,aligny top");
+		this.getContentPane().add(comboBoxRank, "cell 4 5,growx,aligny top");
+		this.getContentPane().add(comboBoxPowerType, "cell 2 5,growx,aligny top");
+		this.getContentPane().add(powerDescScroll, "cell 0 7 5 1,grow");
+		this.getContentPane().add(talentTextScroll, "cell 0 1 5 1,grow");
+		this.getContentPane().add(techniqueTextScroll, "cell 0 3 5 1,grow");
+		this.getContentPane().add(btnAddPower, "cell 0 8,growx,aligny center");
 	}
 	
 	
@@ -306,35 +307,43 @@ public class CharPowerGUI {
 	public void addLabels() {
 		lblTalents = new JLabel("Talents:");
 		lblTalents.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblTalents.setBounds(42, 11, 61, 14);
 		
 		lblTechniques = new JLabel("Techniques:");
 		lblTechniques.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblTechniques.setBounds(38, 134, 83, 14);
 		
 		lblPowerType = new JLabel("Power Type:");
 		lblPowerType.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblPowerType.setBounds(205, 255, 91, 14);
 		
 		lblName = new JLabel("Name: ");
 		lblName.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblName.setBounds(42, 255, 61, 14);
 		
 		lblPowerDescription = new JLabel("Description:");
 		lblPowerDescription.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblPowerDescription.setBounds(42, 311, 77, 14);
 		
 		lblRank = new JLabel("Rank:");
 		lblRank.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblRank.setBounds(313, 255, 61, 14);
+		this.getContentPane().setLayout(new MigLayout("", "[125px][42px][91px][17px][61px]", "[14px][86px][14px][86px][14px][20px][14px][75.00px][44.00px]"));
 		
-		charPowerMainpanel.getContentPane().add(lblTalents);
-		charPowerMainpanel.getContentPane().add(lblTechniques);
-		charPowerMainpanel.getContentPane().add(lblPowerType);
-		charPowerMainpanel.getContentPane().add(lblName);
-		charPowerMainpanel.getContentPane().add(lblPowerDescription);
-		charPowerMainpanel.getContentPane().add(lblRank);
+		this.getContentPane().add(lblTalents, "cell 0 0,alignx left,growy");
+		this.getContentPane().add(lblTechniques, "cell 0 2,alignx left,growy");
+		this.getContentPane().add(lblPowerType, "cell 2 4,grow");
+		this.getContentPane().add(lblName, "cell 0 4,alignx left,growy");
+		this.getContentPane().add(lblPowerDescription, "cell 0 6,alignx left,growy");
+		this.getContentPane().add(lblRank, "cell 4 4,grow");
 		
+		
+	}
+	
+	public void resetFields() {
+		newPower = new CharPower();
+		talentList.clear();
+		techniqueList.clear();
+		
+		textfieldTalents.setText("");
+		textfieldTechniques.setText("");
+		textfieldPowerDesc.setText("");
+		comboBoxRank.setSelectedIndex(0);
+		comboBoxPowerType.setSelectedIndex(0);
 		
 	}
 	

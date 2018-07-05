@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2018-6-04
+- Added a new GUI object specifically for the six stats, as well as a button linking it to it.
+- Added a 'New' option in the File menu. When clicked, it resets all the fields across all GUI objects.
+- Added scroll bars to all the big text fields in all the GUIs.
+
+### Changed
+- Changed the Layout of all GUI objects to MigLayout
+
 ## [1.0.2] - 2018-6-03
 
 ### Changed

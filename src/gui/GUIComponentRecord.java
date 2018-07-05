@@ -13,6 +13,7 @@ public class GUIComponentRecord {
 		this.component = component;
 		this.name = name;
 	}
+
 	
 	public JComponent getComponent() {
 		return component;
@@ -28,6 +29,10 @@ public class GUIComponentRecord {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public void setText(String text) {
+		component.setText(text);
 	}
 	
 	public String getText() {

@@ -180,6 +180,15 @@ public class Character {
 	public ArrayList<CharPower> getTechniques() {
 		return techniques;
 	}
+	
+	public StatCollection getStats() {
+		return stats;
+	}
+	
+	public void setStats(StatCollection stats) {
+		this.stats = stats;
+	}
+	
 
 	/*
 	public StatCollection getStats() {
